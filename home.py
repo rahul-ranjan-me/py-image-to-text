@@ -1,11 +1,6 @@
-import numpy as np
-import cv2
-import string
-import random
-import os
-from pytesseract import image_to_string
+import string, random, os, pytesseract
 from flask import (
-    Flask, request, redirect, url_for, flash
+    Flask, request
 )
 from PIL import Image
 
@@ -30,14 +25,10 @@ def upload_file():
             return 'No file selected'
         if file and allowed_file(file.filename):
             uploaded_image = Image.open(file)
-            uploaded_image_x, uploaded_image_y = uploaded_image.size
-            high_res_image = uploaded_image.resize((int(uploaded_image_x*3), int(uploaded_image_y*3)), Image.BICUBIC)
-            uploaded_image.close()
             random_file_name = generate_random_filename()
-            high_res_image.save(random_file_name)
+            uploaded_image.save(random_file_name)
             open_high_res_image = Image.open(random_file_name)
-            text = image_to_string(open_high_res_image, lang='eng')
-            open_high_res_image.close()
+            text = pytesseract.image_to_string(open_high_res_image, lang='eng')
             os.remove(random_file_name)
             return text
         else:
